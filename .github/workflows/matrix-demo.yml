@@ -1,0 +1,33 @@
+name: Matrix Build with Artifacts
+on: [push, workflow_dispatch]
+
+jobs:
+  matrix-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Defining 3 variants to satisfy the "at least 3" requirement
+        version: ['v1', 'v2', 'v3']
+
+    steps:
+      # Good practice to checkout, though not strictly necessary for this simple echo demo
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # REQUIRED: Step containing the specific identifier 'matrix-d303f11'
+      - name: Run matrix-d303f11 identifier step
+        run: echo "Running matrix-d303f11 for version ${{ matrix.version }}"
+
+      # Create a non-empty unique file for this variant
+      - name: Generate build artifact
+        run: |
+          echo "Build timestamp: $(date)" > artifact-${{ matrix.version }}.txt
+          echo "Variant: ${{ matrix.version }}" >> artifact-${{ matrix.version }}.txt
+          echo "Content for validation requirement." >> artifact-${{ matrix.version }}.txt
+
+      # REQUIRED: Upload using v4 with the specific prefix 'build-d303f11-'
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-d303f11-${{ matrix.version }}
+          path: artifact-${{ matrix.version }}.txt
